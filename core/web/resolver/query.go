@@ -328,3 +328,14 @@ func (r *Resolver) Nodes(ctx context.Context, args struct {
 
 	return NewNodesPayload(nodes, int32(count)), nil
 }
+
+// Config retrieves the Chainlink node's configuration
+func (r *Resolver) Config(ctx context.Context) (*ConfigPayloadResolver, error) {
+	if err := authenticateUser(ctx); err != nil {
+		return nil, err
+	}
+
+	cfg := r.App.GetConfig()
+
+	return NewConfigPayload(cfg), nil
+}
