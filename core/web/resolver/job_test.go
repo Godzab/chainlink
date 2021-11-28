@@ -33,10 +33,13 @@ func TestResolver_Jobs(t *testing.T) {
 							__typename
 						}
 						runs {
-							id
-							allErrors
-							outputs
-							createdAt
+							__typename
+							results {
+								id
+							}
+							metadata {
+								total
+							}
 						}
 						observationSource
 					}
@@ -56,17 +59,6 @@ func TestResolver_Jobs(t *testing.T) {
 				plnSpecID := int32(12)
 
 				f.App.On("JobORM").Return(f.Mocks.jobORM)
-				f.Mocks.jobORM.On("PipelineRunsByJobsIDs", []int32{plnSpecID}).Return([]pipeline.Run{
-					{
-						ID:             int64(1),
-						PipelineSpecID: plnSpecID,
-						State:          pipeline.RunStatusRunning,
-						Outputs:        pipeline.JSONSerializable{Valid: false},
-						AllErrors:      pipeline.RunErrors{},
-						CreatedAt:      f.Timestamp(),
-						FinishedAt:     null.Time{},
-					},
-				}, nil)
 				f.Mocks.jobORM.On("FindJobs", 0, 50).Return([]job.Job{
 					{
 						ID:                          1,
@@ -83,6 +75,15 @@ func TestResolver_Jobs(t *testing.T) {
 						},
 					},
 				}, 1, nil)
+				f.Mocks.jobORM.
+					On("FindPipelineRunIDsByJobID", int32(1), 0, 50).
+					Return([]int64{200}, nil)
+				f.Mocks.jobORM.
+					On("FindPipelineRunsByIDs", []int64{200}).
+					Return([]pipeline.Run{{ID: 200}}, nil)
+				f.Mocks.jobORM.
+					On("CountPipelineRunsByJobID", int32(1)).
+					Return(int32(1), nil)
 			},
 			query: query,
 			result: `
@@ -98,14 +99,15 @@ func TestResolver_Jobs(t *testing.T) {
 							"spec": {
 								"__typename": "OCRSpec"
 							},
-							"runs": [
-								{
-									"id": "1",
-									"allErrors": [],
-									"outputs": ["error: unable to retrieve outputs"],
-									"createdAt": "2021-01-01T00:00:00Z"
+							"runs": {
+								"__typename": "JobRunsPayload",
+								"results": [{
+									"id": "200"
+								}],
+								"metadata": {
+									"total": 1
 								}
-							],
+							},
 							"observationSource": "ds1 [type=bridge name=voter_turnout];"
 						}],
 						"metadata": {
@@ -136,6 +138,15 @@ func TestResolver_Job(t *testing.T) {
 						schemaVersion
 						spec {
 							__typename
+						}
+						runs {
+							__typename
+							results {
+								id
+							}
+							metadata {
+								total
+							}
 						}
 						observationSource
 					}
@@ -168,6 +179,15 @@ func TestResolver_Job(t *testing.T) {
 						DotDagSource: "ds1 [type=bridge name=voter_turnout];",
 					},
 				}, nil)
+				f.Mocks.jobORM.
+					On("FindPipelineRunIDsByJobID", int32(1), 0, 50).
+					Return([]int64{200}, nil)
+				f.Mocks.jobORM.
+					On("FindPipelineRunsByIDs", []int64{200}).
+					Return([]pipeline.Run{{ID: 200}}, nil)
+				f.Mocks.jobORM.
+					On("CountPipelineRunsByJobID", int32(1)).
+					Return(int32(1), nil)
 			},
 			query: query,
 			result: `
@@ -181,6 +201,15 @@ func TestResolver_Job(t *testing.T) {
 						"schemaVersion": 1,
 						"spec": {
 							"__typename": "OCRSpec"
+						},
+						"runs": {
+							"__typename": "JobRunsPayload",
+							"results": [{
+								"id": "200"
+							}],
+							"metadata": {
+								"total": 1
+							}
 						},
 						"observationSource": "ds1 [type=bridge name=voter_turnout];"
 					}
