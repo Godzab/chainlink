@@ -286,7 +286,7 @@ type ChainlinkRunner struct{}
 func (n ChainlinkRunner) Run(app chainlink.Application) error {
 	defer func() {
 		if err := app.GetLogger().Sync(); err != nil {
-			panic(err)
+			log.Println(err)
 		}
 	}()
 	config := app.GetConfig()

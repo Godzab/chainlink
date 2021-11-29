@@ -75,12 +75,12 @@ func (p *Pool) Dial(ctx context.Context) error {
 	})
 }
 
-// DialRetryInterval controls how often we try to reconnect a dead node
-var DialRetryInterval = 5 * time.Second
+// dialRetryInterval controls how often we try to reconnect a dead node
+var dialRetryInterval = 5 * time.Second
 
 func (p *Pool) runLoop() {
 	defer p.wg.Done()
-	ticker := time.NewTicker(DialRetryInterval)
+	ticker := time.NewTicker(dialRetryInterval)
 
 	for {
 		select {
@@ -91,7 +91,7 @@ func (p *Pool) runLoop() {
 			func() {
 				ctx, cancel := utils.ContextFromChan(p.chStop)
 				defer cancel()
-				ctx, cancel = context.WithTimeout(ctx, DialRetryInterval)
+				ctx, cancel = context.WithTimeout(ctx, dialRetryInterval)
 				defer cancel()
 				// TODO: How does this play with automatic WS reconnects?
 				p.redialDeadNodes(ctx)

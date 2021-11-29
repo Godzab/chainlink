@@ -21,10 +21,6 @@ import (
 	ethmocks "github.com/smartcontractkit/chainlink/core/services/eth/mocks"
 )
 
-func init() {
-	eth.DialRetryInterval = 100 * time.Millisecond
-}
-
 func TestPool_Dial(t *testing.T) {
 	tests := []struct {
 		name      string

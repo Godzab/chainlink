@@ -9,6 +9,10 @@ import (
 	"github.com/smartcontractkit/chainlink/core/logger"
 )
 
+func init() {
+	dialRetryInterval = 100 * time.Millisecond
+}
+
 func NewClient(lggr logger.Logger, rpcUrl string, rpcHTTPURL *url.URL, sendonlyRPCURLs []url.URL, chainID *big.Int) (*client, error) {
 	parsed, err := url.ParseRequestURI(rpcUrl)
 	if err != nil {
