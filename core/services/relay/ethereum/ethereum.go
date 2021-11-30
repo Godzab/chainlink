@@ -87,8 +87,6 @@ func (r relayer) NewOCR2Provider(externalJobID uuid.UUID, s interface{}) (relay.
 		return nil, err
 	}
 
-	ocrDB := ocr2.NewDB(r.db.DB, spec.ID)
-
 	var kbID string
 	if spec.EncryptedOCRKeyBundleID.Valid {
 		kbID = spec.EncryptedOCRKeyBundleID.String
@@ -115,6 +113,8 @@ func (r relayer) NewOCR2Provider(externalJobID uuid.UUID, s interface{}) (relay.
 	if err != nil {
 		return nil, errors.Wrap(err, "could not instantiate NewOffchainAggregatorCaller")
 	}
+
+	ocrDB := ocr2.NewDB(r.db.DB, spec.ID, r.lggr)
 
 	tracker := ocr2.NewOCRContractTracker(
 		contract,
