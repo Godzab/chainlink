@@ -325,7 +325,12 @@ func Test_DB_PendingTransmissions(t *testing.T) {
 
 	t.Run("allows multiple duplicate keys for different spec ID", func(t *testing.T) {
 		p := ocrtypes.PendingTransmission{
-			Time: time.Unix(100, 0),
+			Time:      time.Unix(100, 0),
+			ExtraHash: cltest.Random32Byte(),
+			Report:    []byte{2, 2, 3},
+			AttributedSignatures: []ocrtypes.AttributedOnchainSignature{
+				{Signature: cltest.MustRandomBytes(t, 7), Signer: 248},
+			},
 		}
 		err := db.StorePendingTransmission(ctx, k2, p)
 		require.NoError(t, err)
@@ -339,7 +344,12 @@ func Test_DB_PendingTransmissions(t *testing.T) {
 
 	t.Run("deletes pending transmission older than", func(t *testing.T) {
 		p := ocrtypes.PendingTransmission{
-			Time: time.Unix(100, 0),
+			Time:      time.Unix(100, 0),
+			ExtraHash: cltest.Random32Byte(),
+			Report:    []byte{2, 2, 3},
+			AttributedSignatures: []ocrtypes.AttributedOnchainSignature{
+				{Signature: cltest.MustRandomBytes(t, 7), Signer: 248},
+			},
 		}
 
 		err := db.StorePendingTransmission(ctx, k, p)
